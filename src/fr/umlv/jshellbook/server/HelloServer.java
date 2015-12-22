@@ -21,10 +21,10 @@ public class HelloServer extends AbstractVerticle {
 
     
     this.vertx.createHttpServer().requestHandler(router::accept).listen(
-    		config().getInteger("http.port", 8080),
+    		config().getInteger("http.port", 8989),
     		result -> {
     			if(result.succeeded()) {
-    			    System.out.println("listen on port 8080");
+    			    System.out.println("You can work on : http://localhost:8989");
     				fut.complete();
     			} else {
     				fut.fail(result.cause());
