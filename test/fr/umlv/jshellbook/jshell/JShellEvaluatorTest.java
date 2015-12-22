@@ -11,7 +11,7 @@ public class JShellEvaluatorTest {
     public void testEval() {
 	JShellEvaluator parser = new JShellEvaluator();
 	String res = parser.eval("System.out.println(\"test\");");
-	assertEquals("test", res);
+	assertEquals("test\n", res);
     }
 
 }
