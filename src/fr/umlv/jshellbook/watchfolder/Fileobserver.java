@@ -9,33 +9,23 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 public class Fileobserver {
 
 	private final Path dir;
 	private final WatchService watcher;
 	private final HashMap<Kind<Path>, Consumer<Path>> map = new HashMap<>();
-	private final List<Kind<Path>> kinds = new ArrayList<>();
+	private final Set<Kind<Path>> kindsEvents  = new HashSet<>(); 
 
-	/*Tool's method*/
-	@SuppressWarnings("unchecked")
-	private void takeEvent() throws InterruptedException {
-		WatchKey key = this.watcher.take();
-
-		for (WatchEvent<?> event : key.pollEvents()) {
-			Kind<Path> kind = (Kind<Path>) event.kind();
-			WatchEvent<Path> ev = (WatchEvent<Path>) event;
-			System.out.println(kind);
-			this.map.getOrDefault(kind, __ -> new IllegalStateException("Unknow kind event " + kind))
-					.accept(ev.context());
-		}
-		key.reset();
-	}
-	
 	
 	
 	/*Publics method*/
@@ -48,21 +38,36 @@ public class Fileobserver {
 		this.dir = dir;
 		this.watcher = FileSystems.getDefault().newWatchService();
 	}
-
-	public void registerEvent(Kind<Path> kindEvent, Consumer<Path> consumer) {
-		Objects.requireNonNull(kindEvent);
+	
+	public void addConsumerToKind(Kind<Path> kindEvent, Consumer<Path> consumer)  {
+		Objects.requireNonNull(consumer);
+		if(!this.kindsEvents.contains(kindEvent)){// implicite null check 
+			throw new IllegalArgumentException("kind event "+kindEvent+" is not registred");
+		}
 		this.map.put(kindEvent, consumer);
-		this.kinds.add(kindEvent);
+		
+	}
+	
+	public void registerKindEvent(final Kind<Path>... kindEvents) throws IOException{
+		Objects.requireNonNull(kindEvents);
+		this.dir.register(this.watcher, kindEvents);
+		this.kindsEvents.addAll(Arrays.asList(kindEvents));
 	}
 
 
-	public void observeDirectory() throws InterruptedException, IOException {
-		Kind<?>[] kinds = new Kind<?>[this.kinds.size()];
-		for (int i = 0; i < this.kinds.size(); i++) {
-			kinds[i] = this.kinds.get(i);
+	@SuppressWarnings("unchecked")
+	public void observeDirectory() throws InterruptedException {
+		
+		WatchKey key = this.watcher.take();
+
+		for (WatchEvent<?> event : key.pollEvents()) {
+			Kind<Path> kind = (Kind<Path>) event.kind();
+			WatchEvent<Path> ev = (WatchEvent<Path>) event;
+			System.out.println(kind);
+			this.map.getOrDefault(kind, __ -> new IllegalStateException("Unknow kind event " + kind))
+					.accept(ev.context());
 		}
-		this.dir.register(this.watcher,  kinds);
-		takeEvent();
+		key.reset();
 	}
 	
 
