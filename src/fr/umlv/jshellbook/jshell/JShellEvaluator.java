@@ -13,7 +13,7 @@ public class JShellEvaluator {
     private final PrintStream printStream;
     private final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
     
-    private JShellEvaluator() {
+    public JShellEvaluator() {
 	this.printStream = new PrintStream(this.arrayOutputStream);
 	this.builder = JShell.builder();
 	this.builder.err(this.printStream);
