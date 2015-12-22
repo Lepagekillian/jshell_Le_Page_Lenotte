@@ -1,4 +1,4 @@
-package fr.umlv.jshellbook.watchService;
+package fr.umlv.jshellbook.watchfolder;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
