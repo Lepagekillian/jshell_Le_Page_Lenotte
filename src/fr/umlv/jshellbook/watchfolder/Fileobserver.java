@@ -48,7 +48,6 @@ public class Fileobserver {
 			}
 		}
 		key.reset();
-		return;
 	}
 
 	@Override
