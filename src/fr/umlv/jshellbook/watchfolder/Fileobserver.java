@@ -14,16 +14,22 @@ import java.util.Objects;
 public class Fileobserver {
 
 	private final Path dir;
-
-	Fileobserver(Path dir) {
+	private final WatchService watcher;
+	//private final HashMap<Kind<Path>, >
+	Fileobserver(Path dir) throws IOException {
 		this.dir = Objects.requireNonNull(dir);
+		this.watcher = FileSystems.getDefault().newWatchService();
 	}
-
-	public void observeDirectory() throws IOException, InterruptedException {
-		WatchService myWatcher = FileSystems.getDefault().newWatchService();
-		this.dir.register(myWatcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-		WatchKey key;
-		key = myWatcher.take();
+	
+	public void registerEvent(WatchEvent.Kind<?> event) throws IOException{
+		this.dir.register(this.watcher, event);
+	}
+	
+	public void observeDirectory() throws InterruptedException {
+		
+		
+		WatchKey key = this.watcher.take();
+		
 		for (WatchEvent<?> event : key.pollEvents()) {
 			WatchEvent.Kind<?> kind = event.kind();
 
