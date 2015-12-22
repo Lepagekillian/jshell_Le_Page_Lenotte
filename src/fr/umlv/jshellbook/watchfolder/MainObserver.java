@@ -9,7 +9,7 @@ public class MainObserver {
 		Fileobserver test = new Fileobserver(Paths.get("ressources"));
 		while(true){
 			try {
-				test.alphaOne();
+				test.observeDirectory();
 			} catch (IOException e) {
 				System.out.println(test + "does not exist");
 				return;

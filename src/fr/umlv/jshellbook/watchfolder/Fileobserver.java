@@ -19,7 +19,7 @@ public class Fileobserver {
 		this.dir = Objects.requireNonNull(dir);
 	}
 
-	public void alphaOne() throws IOException, InterruptedException {
+	public void observeDirectory() throws IOException, InterruptedException {
 		WatchService myWatcher = FileSystems.getDefault().newWatchService();
 		this.dir.register(myWatcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 		WatchKey key;
