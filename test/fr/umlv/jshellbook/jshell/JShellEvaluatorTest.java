@@ -6,7 +6,14 @@ import org.junit.Test;
 
 public class JShellEvaluatorTest {
 
-    @SuppressWarnings("static-method")
+    
+    @Test(expected=NullPointerException.class)
+    public void testNull(){
+	JShellEvaluator shellEvaluator  = new JShellEvaluator();
+	shellEvaluator.eval(null);
+    }
+    
+    
     @Test
     public void testEval() {
 	JShellEvaluator parser = new JShellEvaluator();
