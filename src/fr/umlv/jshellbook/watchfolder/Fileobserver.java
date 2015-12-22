@@ -2,56 +2,56 @@ package fr.umlv.jshellbook.watchfolder;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-
-import static java.nio.file.StandardWatchEventKinds.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class Fileobserver {
 
 	private final Path dir;
 	private final WatchService watcher;
-	//private final HashMap<Kind<Path>, >
-	Fileobserver(Path dir) throws IOException {
-		this.dir = Objects.requireNonNull(dir);
+	private final HashMap<Kind<Path>, Consumer<Path>> map = new HashMap<>();
+	private final List<Kind<Path>> kinds = new ArrayList<>();
+
+	public Fileobserver(Path dir) throws IOException {
+		Objects.requireNonNull(dir);
+		if (!Files.exists(dir) || !Files.isDirectory(dir)) {// implicite null
+															// check
+			throw new IllegalArgumentException(dir + " don't exist or is not a directory");
+		}
+		this.dir = dir;
 		this.watcher = FileSystems.getDefault().newWatchService();
 	}
-	
-	public void registerEvent(WatchEvent.Kind<?> event) throws IOException{
-		this.dir.register(this.watcher, event);
+
+	public void registerEvent(Kind<Path> kindEvent, Consumer<Path> consumer) {
+		Objects.requireNonNull(kindEvent);
+		this.map.put(kindEvent, consumer);
+		this.kinds.add(kindEvent);
 	}
-	
-	public void observeDirectory() throws InterruptedException {
-		
-		
+
+	@SuppressWarnings("unchecked")
+	public void observeDirectory() throws InterruptedException, IOException {
+		Kind<?>[] kinds = new Kind<?>[this.kinds.size()];
+		for (int i = 0; i < this.kinds.size(); i++) {
+			kinds[i] = this.kinds.get(i);
+		}
+		this.dir.register(this.watcher,  kinds);
 		WatchKey key = this.watcher.take();
-		
+
 		for (WatchEvent<?> event : key.pollEvents()) {
-			WatchEvent.Kind<?> kind = event.kind();
-
-			/* We guaranteed that event is typed as a WatchEvent<Path> */
-			@SuppressWarnings("unchecked")
+			Kind<Path> kind = (Kind<Path>) event.kind();
 			WatchEvent<Path> ev = (WatchEvent<Path>) event;
-			Path fileName = ev.context();
-
-			if (kind == OVERFLOW) {
-				continue;
-			} else if (kind == ENTRY_CREATE) {
-
-				System.out.println(fileName + " has been created.");
-			} else if (kind == ENTRY_DELETE) {
-
-				System.out.println(fileName + " has been deleted.");
-
-			} else if (kind == ENTRY_MODIFY) {
-
-				System.out.println(fileName + " has been modified.");
-
-			}
+			System.out.println(kind);
+			this.map.getOrDefault(kind, __ -> new IllegalStateException("Unknow kind event " + kind))
+					.accept(ev.context());
 		}
 		key.reset();
 	}
