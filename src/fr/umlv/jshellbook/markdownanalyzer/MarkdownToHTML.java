@@ -17,12 +17,13 @@ public class MarkdownToHTML {
 			this.processor= Objects.requireNonNull(process);
 		}
 		
-		public  String parse(Path theFile) throws IOException{
+		public  String parse(Path theFile) throws IOException {
 
 			try(Stream<String> fi = Files.lines(theFile)){
 				String str = fi.collect(Collectors.joining("\n"));
 				str = this.processor.markdownToHtml(str);
 				return str;
 			}
+
 		}
 }
