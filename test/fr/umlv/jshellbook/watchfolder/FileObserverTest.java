@@ -39,33 +39,6 @@ public class FileObserverTest {
 
 	@Test
 	@SuppressWarnings("static-method") // test method can't be static
-	public void testMultipleObserver() throws IOException, InterruptedException {
-		Path ressources = Paths.get("ressources");
-
-		FileObserver test = new FileObserver(ressources, p -> p.toString().endsWith(".mkdown"));
-		test.registerKindEvent(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
-		Path pathCreate = Paths.get(ressources.toString(), "testMultiple.mkdown");
-
-		// for this test we make thing step by step to avoid miss event
-		pathCreate = Files.createFile(pathCreate);
-		
-		try(BufferedWriter writer = Files.newBufferedWriter(pathCreate, StandardOpenOption.WRITE)) {
-			writer.write("testMultiple");
-			writer.flush();
-		} 
-		Files.delete(pathCreate);
-		
-		List<WatchEvent<Path>> watchables = test.observeDirectory();
-		
-		List<Kind<Path>> kinds = watchables.stream().map(w -> w.kind()).collect(Collectors.toList());
-		assertTrue(kinds.contains(ENTRY_CREATE));
-		assertTrue(kinds.contains(ENTRY_MODIFY));
-		assertTrue(kinds.contains(ENTRY_DELETE));
-		assertEquals(3, watchables.size());
-	}
-
-	@Test
-	@SuppressWarnings("static-method") // test method can't be static
 	public void testOtherObserver() throws IOException, InterruptedException {
 		Path ressources = Paths.get("ressources");
 
