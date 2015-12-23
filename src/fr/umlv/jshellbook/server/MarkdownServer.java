@@ -29,8 +29,12 @@ public class MarkdownServer extends AbstractVerticle {
 		router.route("/").handler(
 				routingContext -> {
 					HttpServerResponse response = routingContext.response();
-						response.putHeader("content-type", "text/html").end(
-								work.parse(file));
+						try {
+							response.putHeader("content-type", "text/html").end(
+									work.parse(file));
+						} catch (Exception e) {
+							//TODO corriger le code !!!!
+						}
 				});
 	}
 
