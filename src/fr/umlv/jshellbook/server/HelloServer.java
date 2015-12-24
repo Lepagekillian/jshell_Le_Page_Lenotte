@@ -13,6 +13,7 @@ public class HelloServer extends AbstractVerticle {
 	private void helloRoutine(RoutingContext routingContext) {
 		routingContext.response().putHeader("content-type", "text/html").end("<h1>Hello copinou Vertx 3.0.0 Represent</h1>");
 	}
+	
 	private void defaultRoutine(RoutingContext routingContext) {
 		routingContext.response().putHeader("content-type", "text/html").end("D&eacute;fault page");
 	}
