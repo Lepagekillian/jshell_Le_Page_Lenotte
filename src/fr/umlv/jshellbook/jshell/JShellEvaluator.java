@@ -101,44 +101,7 @@ public class JShellEvaluator implements Closeable {
 					this.printStream.println(line);
 				}
 			}
-
-			int pstart = (int) diag.getStartPosition();
-			int pend = (int) diag.getEndPosition();
-			Matcher m = LINEBREAK.matcher(source);
-			int pstartl = 0;
-			int pendl = -2;
-			while (m.find(pstartl)) {
-				pendl = m.start();
-				if (pendl >= pstart) {
-					break;
-				}
-				pstartl = m.end();
-
-			}
-			if (pendl < pstart) {
-				pendl = source.length();
-			}
-			this.printStream.println(source.substring(pstartl, pendl));
-
-			StringBuilder sb = new StringBuilder();
-			int start = pstart - pstartl;
-			for (int i = 0; i < start; ++i) {
-				sb.append(' ');
-			}
-			sb.append('^');
-			boolean multiline = pend > pendl;
-			int end = (multiline ? pendl : pend) - pstartl - 1;
-			if (end > start) {
-				for (int i = start + 1; i < end; ++i) {
-					sb.append('-');
-				}
-				if (multiline) {
-					sb.append("-...");
-				} else {
-					sb.append('^');
-				}
-			}
-			this.printStream.println(sb.toString());
+			this.printStream.println(source);
 		}
 	}
 
