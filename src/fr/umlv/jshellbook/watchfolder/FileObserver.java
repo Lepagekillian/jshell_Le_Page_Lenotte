@@ -23,7 +23,7 @@ public class FileObserver {
 	public FileObserver(Path dir, Predicate<Path> watchPredicate) throws IOException {
 
 		this.watchPredicate = Objects.requireNonNull(watchPredicate);
-		if (!Files.exists(dir) || !Files.isDirectory(dir)) {// implicite null
+		if (!Files.exists(dir) || !Files.isDirectory(dir)) {// implicit null
 															// check
 			throw new IllegalArgumentException(dir + " don't exist or is not a directory");
 		}
