@@ -6,7 +6,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static org.junit.Assert.*;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,14 +21,14 @@ import org.junit.Test;
 public class FileObserverTest {
 
 	@Test(expected = NullPointerException.class)
-	@SuppressWarnings({ "static-method", "unused" }) // test method can't be
+	@SuppressWarnings({ "static-method" }) // test method can't be
 														// static
 	public void testDirNull() throws IOException {
 		new FileObserver(null, p -> true);
 	}
 
 	@Test(expected = NullPointerException.class)
-	@SuppressWarnings({ "static-method", "unused" }) // test method can't be
+	@SuppressWarnings({ "static-method" }) // test method can't be
 														// static
 	public void testPredicateNull() throws IOException {
 
