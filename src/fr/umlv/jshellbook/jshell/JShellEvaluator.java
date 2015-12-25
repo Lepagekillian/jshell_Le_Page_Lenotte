@@ -6,17 +6,24 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import jdk.jshell.Diag;
+import jdk.jshell.EvalException;
 import jdk.jshell.JShell;
 import jdk.jshell.JShell.Builder;
+import jdk.jshell.Snippet.Status;
 import jdk.jshell.SnippetEvent;
+import jdk.jshell.UnresolvedReferenceException;
 
 public class JShellEvaluator implements Closeable {
 
 	private final Builder builder;
 	private final JShell jShell;
-
+	private static final Pattern LINEBREAK = Pattern.compile("\\R");
 	private final PrintStream printStream;
 	private final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
@@ -28,20 +35,111 @@ public class JShellEvaluator implements Closeable {
 		this.jShell = this.builder.build();
 	}
 
-	private void evalOneCodeLine(final String lineToEval) {
-		Objects.requireNonNull(lineToEval);
-		this.jShell.eval(lineToEval);
+	private boolean evalOneCodeLine(final String lineToEval) {
+		List<SnippetEvent> events = this.jShell.eval(lineToEval);
+		for (SnippetEvent snippetEvent : events) {
+			List<Diag> diagnostics = this.jShell.diagnostics(snippetEvent.snippet());
+			if (snippetEvent.exception() != null) {
+				printException(snippetEvent);
+				return false;
+			}
+			if (snippetEvent.status() == Status.REJECTED) {
+				printDiagnostics(snippetEvent.snippet().source(), diagnostics);
+				return false;
+			}
+		}
+		return true;
 	}
 
+	private void printException(SnippetEvent snippetEvent) {
+		Exception exception = snippetEvent.exception();
+		if (exception instanceof EvalException) {
+			EvalException evalException = (EvalException) exception;
+			this.printStream.println(evalException.getExceptionClassName());
+		}
+		if (exception instanceof UnresolvedReferenceException) {
+			UnresolvedReferenceException exception2 = (UnresolvedReferenceException) exception;
+			this.printStream.println(exception2.getMethodSnippet().source());
+		}
+		exception.printStackTrace(this.printStream);
+		this.printStream.println(snippetEvent.snippet().source());
+	}
+
+	/**
+	 * 
+	 * @param linesToEval
+	 * @return
+	 * @throws Null
+	 *             pointer exception if the list is null or one line of code is
+	 *             null.
+	 */
 	public String evalCodeLines(List<String> linesToEval) {
 		Objects.requireNonNull(linesToEval);
 
 		for (String line : linesToEval) {
-			evalOneCodeLine(line);
+			if (!evalOneCodeLine(Objects.requireNonNull(line))) {
+				break;// If a line is wrong or throw an exception no need to
+						// continue
+			}
 		}
 		String resEval = this.arrayOutputStream.toString();
 		this.arrayOutputStream.reset();
 		return resEval;
+	}
+
+	void printDiagnostics(String source, List<Diag> diagnostics) {
+		for (Diag diag : diagnostics) {
+
+			if (diag.isError()) {
+				this.printStream.print("Error:");
+			} else {
+				this.printStream.print("Warning:");
+			}
+
+			for (String line : diag.getMessage(null).split("\\r?\\n")) {
+				if (!line.trim().startsWith("location:")) {
+					this.printStream.println(line);
+				}
+			}
+
+			int pstart = (int) diag.getStartPosition();
+			int pend = (int) diag.getEndPosition();
+			Matcher m = LINEBREAK.matcher(source);
+			int pstartl = 0;
+			int pendl = -2;
+			while (m.find(pstartl)) {
+				pendl = m.start();
+				if (pendl >= pstart) {
+					break;
+				}
+				pstartl = m.end();
+
+			}
+			if (pendl < pstart) {
+				pendl = source.length();
+			}
+			this.printStream.println(source.substring(pstartl, pendl));
+
+			StringBuilder sb = new StringBuilder();
+			int start = pstart - pstartl;
+			for (int i = 0; i < start; ++i) {
+				sb.append(' ');
+			}
+			sb.append('^');
+			boolean multiline = pend > pendl;
+			int end = (multiline ? pendl : pend) - pstartl - 1;
+			if (end > start) {
+				for (int i = start + 1; i < end; ++i) {
+					sb.append('-');
+				}
+				if (multiline) {
+					sb.append("-...");
+				} else {
+					sb.append('^');
+				}
+			}
+			this.printStream.println(sb.toString());
+		}
 	}
 
 	@Override
@@ -54,10 +152,9 @@ public class JShellEvaluator implements Closeable {
 	public static void main(String[] args) throws IOException {
 		try (JShellEvaluator evaluator = new JShellEvaluator()) {
 			List<String> lines = new ArrayList<>();
-			lines.add("int i =0;");
-			lines.add("while(i<100){i++;}");
-			lines.add("System.out.println(i);");
-			evaluator.evalCodeLines(lines);
+			lines.add("pouet");
+			String res = evaluator.evalCodeLines(lines);
+			System.out.println(res);
 		}
 	}
 
