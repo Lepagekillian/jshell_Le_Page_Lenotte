@@ -1,6 +1,7 @@
 package fr.umlv.jshellbook.server;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 import io.vertx.core.AbstractVerticle;
@@ -30,9 +31,14 @@ public class LightServer extends AbstractVerticle {
 	}
 
 	private void readingDirectoryRoutine(RoutingContext routingContext) {
-		routingContext.vertx().fileSystem()
-				.readDirBlocking(this.workingDirectory.toString(),".mkdown" );
-
+		//System.out.println(".*\\.\\(mkdown\\)" );
+		System.out.println(routingContext.normalisedPath());
+		System.out.println("hello");
+		List<String> toTreat = routingContext.vertx().fileSystem()
+				.readDirBlocking(this.workingDirectory.toString()+routingContext.normalisedPath());
+		routingContext.response().end(toTreat.toString());
+		
+	
 	}
 
 	private static Handler<AsyncResult<HttpServer>> futureTreatment(
@@ -51,10 +57,9 @@ public class LightServer extends AbstractVerticle {
 	public void start(Future<Void> fut) {
 		Router router = Router.router(this.vertx);
 		router.get("/jsRoom").handler(this::jsRoutine);
-		router.route().handler(
-				StaticHandler.create(this.workingDirectory.toString())
-						.setDirectoryListing(true).setIncludeHidden(false));
-		router.get().handler(this::readingDirectoryRoutine);
+		router.get("/*.mkdown").handler(this::readingDirectoryRoutine);
+		router.route().handler(StaticHandler.create(this.workingDirectory.toString())
+		.setDirectoryListing(true).setIncludeHidden(false));
 		router.post().handler(this::postRoutine);
 		this.vertx.createHttpServer().requestHandler(router::accept)
 				.listen(8989, futureTreatment(fut));

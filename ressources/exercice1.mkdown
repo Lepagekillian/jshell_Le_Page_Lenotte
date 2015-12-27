@@ -1,0 +1,11 @@
+# Question 1
+##Vous devez faire un hello
+##de tel sort que ....
+<textarea cols="80" name="question1">
+Mettez votre code ici
+</textarea>
+# Question 2
+##CHALUT le code
+<textarea cols="80" name="question2">
+Mettez votre code2 ici
+</textarea>

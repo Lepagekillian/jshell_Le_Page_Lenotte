@@ -12,7 +12,7 @@ public class MainTest {
 	public static void main(String[] args) {
 		MarkdownToHTML work =  new MarkdownToHTML(new PegDownProcessor());
 		try {
-			System.out.println(work.parse(Paths.get("ressources/example_markdown")));
+			System.out.println(work.parse(Paths.get("ressources/exercice1.mkdown")));
 		} catch (IOException e) {
 			System.out.println("File not found.");
 			return;
