@@ -12,43 +12,34 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
-
-public class HelloServer extends AbstractVerticle {
+public class LightServer extends AbstractVerticle {
 	private final Path workingDirectory;
-	
-	public HelloServer(Path path){
-		this.workingDirectory=Objects.requireNonNull(path);
+
+	public LightServer(Path path) {
+		this.workingDirectory = Objects.requireNonNull(path);
 	}
-	
-	private void helloRoutine(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "text/html").end("<h1>Hello copinou Vertx 3.0.0 Represent</h1>");
-	}
-	
+
 	private void postRoutine(RoutingContext routingContext) {
 		System.out.println("HELLO post/submit method :)");
 		routingContext.response().end();
 	}
-	
+
 	private void jsRoutine(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "text/html").sendFile("./javascript/communication_server_test.html");
+		routingContext.response().putHeader("content-type", "text/html")
+				.sendFile("./javascript/communication_server_test.html");
 	}
-	
-	
-	
+
 	private void readingDirectoryRoutine(RoutingContext routingContext) {
-		routingContext.vertx().fileSystem().readDir(this.workingDirectory.toString(), null);
+		routingContext.vertx().fileSystem()
+				.readDirBlocking(this.workingDirectory.toString(),".mkdown" );
 
-	}
-
-	private void defaultRoutine(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "text/html").end("D&eacute;fault page");
 	}
 
 	private static Handler<AsyncResult<HttpServer>> futureTreatment(
 			Future<Void> fut) {
 		return result -> {
 			if (result.succeeded()) {
-				System.out.println("You can work on : http://localhost:8989" );
+				System.out.println("You can work on : http://localhost:8989");
 				fut.complete();
 			} else {
 				fut.fail(result.cause());
@@ -57,13 +48,12 @@ public class HelloServer extends AbstractVerticle {
 	}
 
 	@Override
-	
 	public void start(Future<Void> fut) {
 		Router router = Router.router(this.vertx);
-		router.get("/hello").handler(this::helloRoutine);
-		router.get("/debugRoom").handler(this::jsRoutine);
-		router.get("/default").handler(this::defaultRoutine);
-		router.route().handler(StaticHandler.create(this.workingDirectory.toString()).setDirectoryListing(true));
+		router.get("/jsRoom").handler(this::jsRoutine);
+		router.route().handler(
+				StaticHandler.create(this.workingDirectory.toString())
+						.setDirectoryListing(true).setIncludeHidden(false));
 		router.get().handler(this::readingDirectoryRoutine);
 		router.post().handler(this::postRoutine);
 		this.vertx.createHttpServer().requestHandler(router::accept)
