@@ -15,7 +15,7 @@ public class JShellParser {
 	public static List<String> parse(String lines) {
 		Objects.requireNonNull(lines);
 		List<String> res = new ArrayList<>();
-
+		StringBuilder builderBlock = new StringBuilder();
 		List<String> linesList = Arrays.asList(lines.split(";"));
 
 		int i = 0;
@@ -23,25 +23,27 @@ public class JShellParser {
 		while (i < linesList.size()) {
 			String line = linesList.get(i);
 
-			if (isBeginingOfBlock(line)) {
+			while (isBeginingOfBlock(line)) {
 				String block = workOnBlock(linesList, i);
-				res.add(block);
-				i = jumpTblockEnd(linesList, i);
+				builderBlock.append(block);
+				i = jumpToBlockEnd(linesList, i);
 				String endBlockLine = linesList.get(i);
-				if (endBlockLine.length() > 1) {
-					res.add(endBlockLine.substring(endBlockLine.lastIndexOf("}") + 1, endBlockLine.length()) + ";");
-				}
-				i++;
-			} else {
-				res.add(line + ";");
-				i++;
+				line = endBlockLine.substring(endBlockLine.lastIndexOf("}") + 1, endBlockLine.length());
 			}
+			if(builderBlock.length() > 0){
+				res.add(builderBlock.toString());
+				builderBlock.setLength(0);
+			}
+			if (!line.isEmpty()) {
+				res.add(line + ";");
+			}
+			i++;
 		}
 
 		return res;
 	}
 
-	private static int jumpTblockEnd(List<String> toCheck, int i) {
+	private static int jumpToBlockEnd(List<String> toCheck, int i) {
 		int j = i;
 
 		int braguetteClose = 0;

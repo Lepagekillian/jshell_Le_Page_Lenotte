@@ -2,7 +2,7 @@ package fr.umlv.jshellbook.jshell;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,22 +18,20 @@ public class JShellParserTest {
 
 	@Test
 	@SuppressWarnings("static-method")
-	public void testIfElse() throws IOException {
+	public void testIfElse()  {
 		StringBuilder sb = new StringBuilder();
 		sb.append("if(true) ");
 		sb.append("{System.out.println(\"fasle\");}");
+		sb.append("else if(true) ");
+		sb.append("{System.out.println(\"youhou\");}");
 		sb.append(" esle ");
 		sb.append("{System.out.println(\"true\");}");
 		List<String> lines = new ArrayList<>();
-		lines.add("if(false) {System.out.println(\"fasle\");} else {System.out.println(\"true\");}");
-
-		//assertTrue(lines.equals(JShellParser.parse(sb.toString())));
-		try(JShellEvaluator evaluator = new JShellEvaluator()){
-			String res = evaluator.evalSnippets(lines);
-			System.out.println(res);
-		}
+		lines.add(sb.toString());
+		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
+		
 	}
-	
+
 	@Test
 	@SuppressWarnings("static-method")
 	public void testBoucle() {
@@ -42,6 +40,7 @@ public class JShellParserTest {
 		sb.append("System.out.println(i);");
 		sb.append("}");
 		List<String> lines = new ArrayList<>();
+		
 		lines.add(sb.toString());
 		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
 
@@ -71,6 +70,26 @@ public class JShellParserTest {
 
 		List<String> codes = JShellParser.parse(sb.toString());
 		assertTrue(lines.equals(codes));
+	}
+	@Test
+	@SuppressWarnings("static-method")
+	public  void testSwitch(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("switch (1) {");
+		sb.append("case 1:{");
+		sb.append("System.out.println(\"1\");");
+		sb.append("break;");
+		sb.append("}");
+		sb.append("default:");
+		sb.append("System.out.println(\"break\");");
+		sb.append("break;");
+		sb.append("}");
+		
+		List<String> lines = new ArrayList<>();
+		lines.add(sb.toString());
+		
+		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
+		
 	}
 
 }
