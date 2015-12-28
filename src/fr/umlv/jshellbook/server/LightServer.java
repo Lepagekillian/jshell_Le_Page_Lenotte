@@ -33,14 +33,13 @@ public class LightServer extends AbstractVerticle {
 
 
 	private void readingDirectoryRoutine(RoutingContext routingContext) {
-		String normalisedPath = routingContext.normalisedPath();
-		System.out.println(routingContext.normalisedPath());
+		
 		FileSystem fs = routingContext.vertx().fileSystem();
 		routingContext.response().setChunked(true);
 		routingContext.response().putHeader("content-type", "text/html");
-
+		System.out.println(this.workingDirectory);
 		List<String> toTreat = fs.readDirBlocking(
-				this.workingDirectory.toString() + normalisedPath, "[^.]*");
+				this.workingDirectory.toString() , "[^.]*.mkdown");
 		for (String line : toTreat) {
 			routingContext.response().write(
 					"<a href =\" " + line + "\">" + line);
