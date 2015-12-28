@@ -45,10 +45,8 @@ public class JShellEvaluatorTest {
 		try (JShellEvaluator shellEvaluator = new JShellEvaluator()) {
 			List<String> lines = new ArrayList<>();
 
-			lines.add("public class Test {private int count = 0;"
-					+ "public int getCount() {return this.count;}"
-					+ "public void countTo100() {" + "while(this.count <100 )"
-					+ "{this.count++;}}" + "}");
+			lines.add("public class Test {private int count = 0;" + "public int getCount() {return this.count;}"
+					+ "public void countTo100() {" + "while(this.count <100 )" + "{this.count++;}}" + "}");
 			lines.add("Test test = new Test();");
 			lines.add("System.out.println(test.getCount());");
 			lines.add("test.countTo100();");
