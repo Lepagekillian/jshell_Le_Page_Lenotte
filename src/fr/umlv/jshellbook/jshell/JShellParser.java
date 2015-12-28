@@ -9,15 +9,24 @@ import java.util.stream.Collectors;
 
 public class JShellParser {
 
+	private static final char CHAR_BLOCK_OPENER = '{';
+	private static final char CHAR_BLOCK_CLOSER = '}';
+	private static final String BLOCK_OPENER = "{";
+	private static final String BLOCK_CLOSER = "}";
+	private static final String SEPARATOR = ";";
 	private final static List<String> blocList = Arrays.asList("if", "for", "while", "else", "else if", "class");
-	private final static Pattern pattern = Pattern.compile(blocList.stream().collect(Collectors.joining("\\s?\\(?|")));
+	private final static Pattern pattern = Pattern.compile(blocList.stream().collect(Collectors.joining("\\s*\\(|")));
+	/**
+	 * Create a list of string code from a string
+	 * @param lines A String which contains the code to parse
+	 * @return A list with the snippets ready to be evaluate with <code>JShellEvaluator</code>
+	 * @see JShellEvaluator#evalSnippets(List)
+	 */
+	public static List<String> parseToSnippets(String lines) {
 
-	public static List<String> parse(String lines) {
-		Objects.requireNonNull(lines);
+		List<String> linesList = splitLines(Objects.requireNonNull(lines), SEPARATOR);
 		List<String> res = new ArrayList<>();
 		StringBuilder builderBlock = new StringBuilder();
-		List<String> linesList = Arrays.asList(lines.split(";"));
-
 		int i = 0;
 
 		while (i < linesList.size()) {
@@ -28,19 +37,51 @@ public class JShellParser {
 				builderBlock.append(block);
 				i = jumpToBlockEnd(linesList, i);
 				String endBlockLine = linesList.get(i);
-				line = endBlockLine.substring(endBlockLine.lastIndexOf("}") + 1, endBlockLine.length());
+				line = endBlockLine.substring(endBlockLine.lastIndexOf(BLOCK_CLOSER) + 1, endBlockLine.length());
 			}
-			if(builderBlock.length() > 0){
+			if (builderBlock.length() > 0) {
 				res.add(builderBlock.toString());
 				builderBlock.setLength(0);
 			}
 			if (!line.isEmpty()) {
-				res.add(line + ";");
+				res.add(line + SEPARATOR);
 			}
 			i++;
 		}
-
+		
 		return res;
+	}
+
+	private static List<String> splitLines(String lines, String separator) {
+		StringBuilder builderLine = new StringBuilder();
+		String[] linesTmp = lines.split(separator);
+		List<String> listString = new ArrayList<>();
+		boolean isToReconstitued = false;
+		for (int i = 0; i < linesTmp.length; i++) {
+			String line = linesTmp[i];
+			if (isToMuchSplit(line)) {
+				builderLine.append(line);
+				if (isToReconstitued) {
+					listString.add(builderLine.toString());
+					builderLine.setLength(0);
+					isToReconstitued = false;
+				} else {
+					isToReconstitued = true;
+					builderLine.append(separator);
+				}
+
+			} else if (isToReconstitued) {
+				builderLine.append(line).append(separator);
+			} else {
+				listString.add(line);
+			}
+		}
+		return listString;
+	}
+
+	private static boolean isToMuchSplit(String line) {
+
+		return countNbSymbole(line, '"') % 2 == 1 || countNbSymbole(line, '\'') % 2 == 1;
 	}
 
 	private static int jumpToBlockEnd(List<String> toCheck, int i) {
@@ -51,11 +92,11 @@ public class JShellParser {
 		while (j < toCheck.size()) {
 			String line = toCheck.get(j);
 
-			if (line.contains("}")) {
-				braguetteClose += countNbBraguetteClose(line);
+			if (line.contains(BLOCK_CLOSER)) {
+				braguetteClose += countNbBlockClose(line);
 			}
-			if (line.contains("{")) {
-				braguetteOpen += countNbBraguetteOpen(line);
+			if (line.contains(BLOCK_OPENER)) {
+				braguetteOpen += countNbBlockOpen(line);
 			}
 
 			if (braguetteClose == braguetteOpen && braguetteOpen != 0) {
@@ -80,20 +121,20 @@ public class JShellParser {
 
 			String line = toAnalize.get(j);
 
-			int idxCloseBraguette = line.lastIndexOf('}');
+			int idxCloseBraguette = line.lastIndexOf(CHAR_BLOCK_CLOSER);
 			if (idxCloseBraguette != -1) {
-				braguetteClose += countNbBraguetteClose(line);
+				braguetteClose += countNbBlockClose(line);
 				builder.append(line.substring(0, idxCloseBraguette + 1));
 				line = line.substring(idxCloseBraguette + 1);
 			}
-			if (line.contains("{")) {
-				braguetteOpen += countNbBraguetteOpen(line);
+			if (line.contains(BLOCK_OPENER)) {
+				braguetteOpen += countNbBlockOpen(line);
 			}
 
 			if (braguetteClose == braguetteOpen && braguetteOpen != 0) {
 				isClosed = true;
 			} else {
-				builder.append(line).append(";");
+				builder.append(line).append(SEPARATOR);
 			}
 
 			j++;
@@ -103,20 +144,20 @@ public class JShellParser {
 
 	private static boolean isBeginingOfBlock(String line) {
 
-		if (line.contains("{") || pattern.matcher(line).find()) {
+		if (line.contains(BLOCK_OPENER) || pattern.matcher(line).find()) {
 			return true;
 		}
 		return false;
 	}
 
-	private static int countNbBraguetteOpen(String line) {
+	private static int countNbBlockOpen(String line) {
 
-		return countNbSymbole(line, '{');
+		return countNbSymbole(line, CHAR_BLOCK_OPENER);
 	}
 
-	private static int countNbBraguetteClose(String line) {
+	private static int countNbBlockClose(String line) {
 
-		return countNbSymbole(line, '}');
+		return countNbSymbole(line, CHAR_BLOCK_CLOSER);
 	}
 
 	private static int countNbSymbole(String line, char symbole) {

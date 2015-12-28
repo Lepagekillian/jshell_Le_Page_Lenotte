@@ -13,7 +13,7 @@ public class JShellParserTest {
 	@Test(expected = NullPointerException.class)
 	@SuppressWarnings("static-method")
 	public void testNull() {
-		JShellParser.parse(null);
+		JShellParser.parseToSnippets(null);
 	}
 
 	@Test
@@ -28,7 +28,7 @@ public class JShellParserTest {
 		sb.append("{System.out.println(\"true\");}");
 		List<String> lines = new ArrayList<>();
 		lines.add(sb.toString());
-		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
+		assertTrue(lines.equals(JShellParser.parseToSnippets(sb.toString())));
 		
 	}
 
@@ -42,7 +42,7 @@ public class JShellParserTest {
 		List<String> lines = new ArrayList<>();
 		
 		lines.add(sb.toString());
-		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
+		assertTrue(lines.equals(JShellParser.parseToSnippets(sb.toString())));
 
 	}
 
@@ -68,7 +68,7 @@ public class JShellParserTest {
 		lines.add("test.countTo100();");
 		lines.add("System.out.println(test.getCount());");
 
-		List<String> codes = JShellParser.parse(sb.toString());
+		List<String> codes = JShellParser.parseToSnippets(sb.toString());
 		assertTrue(lines.equals(codes));
 	}
 	@Test
@@ -88,8 +88,24 @@ public class JShellParserTest {
 		List<String> lines = new ArrayList<>();
 		lines.add(sb.toString());
 		
-		assertTrue(lines.equals(JShellParser.parse(sb.toString())));
+		assertTrue(lines.equals(JShellParser.parseToSnippets(sb.toString())));
 		
 	}
-
+	
+	@Test
+	@SuppressWarnings("static-method")
+	public  void testSemiliconSplitCode(){
+		StringBuilder sb = new StringBuilder();
+		List<String> lines = new ArrayList<>();
+		sb.append("String toSplit = \"test;test2;test3;test4\";");
+		lines.add("String toSplit = \"test;test2;test3;test4\";");
+		sb.append("List<String> splitted = Arrays.asList(toSplit.split(\";\"));");
+		lines.add("List<String> splitted = Arrays.asList(toSplit.split(\";\"));");
+		sb.append("splitted.stream().forEach(System.out::println);");
+		lines.add("splitted.stream().forEach(System.out::println);");
+		
+		List<String> testsLine = JShellParser.parseToSnippets(sb.toString());
+		assertTrue(lines.equals(testsLine));
+	}
+	
 }
