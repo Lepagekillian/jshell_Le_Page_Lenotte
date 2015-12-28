@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+ <script type="text/javascript">
+function postData(){
+var val = document.getElementById("pren").value;
+
+var v1 = "<pre><br>Hello "+ val +"</pre>";
+document.write(v1);
+document.close();
+} 
+</script>
+<script src="angular.min.js"></script>
+	<!--  <div ng-app="myApp" ng-controller="myCtrl">
+		Ton pr&eacute;nom : <input type="text" ng-model="firstName" /> <br>
+		Ton nom : <input type="text" ng-model="lastName" /> <br>
+	</div>-->
+	<form method="post" action="debugRoom" >
+	Pr&eacute;nom : <input type="firstName" value="Paul" name="firstName" id="pren">
+	</form>
+<script src="myApp.js"></script>
+<script src="myCtrl.js"></script>
+</body>
+</html>
