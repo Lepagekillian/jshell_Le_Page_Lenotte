@@ -14,6 +14,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -31,23 +32,21 @@ public class LightServer extends AbstractVerticle {
 	}
 
 	private void jsRoutine(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "text/html")
-				.sendFile("./javascript/communication_server_test.html");
-	}
-
-	private void readingDirectoryRoutine(RoutingContext routingContext) {
-
-		FileSystem fs = routingContext.vertx().fileSystem();
 		routingContext.response().setChunked(true);
-		routingContext.response().sendFile("webroot/index.html");
-	List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
-
+		FileSystem fs = routingContext.vertx().fileSystem();
+		List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
 		List<JsonObject> jsonObjects = new ArrayList<>();
 		for (String line : toTreat) {
 			jsonObjects.add(LightServer.makeExoJson(line));
 		}
-		//routingContext.response().write(Json.encode(jsonObjects));
-		//routingContext.response().end();
+		routingContext.response().write(Json.encode(jsonObjects));
+		routingContext.response().end();
+	}
+
+	private void readingDirectoryRoutine(RoutingContext routingContext) {
+		routingContext.response().setChunked(true);
+		routingContext.response().sendFile("webroot/index.html");
+
 	}
 
 	private static Handler<AsyncResult<HttpServer>> futureTreatment(Future<Void> fut) {
@@ -77,7 +76,7 @@ public class LightServer extends AbstractVerticle {
 	@Override
 	public void start(Future<Void> fut) {
 		Router router = Router.router(this.vertx);
-		router.get("/jsRoom").handler(this::jsRoutine);
+		router.get("/list").handler(this::jsRoutine);
 		router.route().handler(this::readingDirectoryRoutine);
 		router.post().handler(this::postRoutine);
 		this.vertx.createHttpServer().requestHandler(router::accept).listen(8989, futureTreatment(fut));
