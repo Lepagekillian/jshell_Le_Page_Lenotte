@@ -1,5 +1,6 @@
 package fr.umlv.jshellbook.server;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import fr.umlv.jshellbook.markdownanalyzer.MarkdownToHTML;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -35,7 +38,7 @@ public class LightServer extends AbstractVerticle {
 
 	private void initializeRouter(Router router) {
 		router.get("/").handler(this::listLinksRoutine);
-		router.get("/:id").handler(this::helloIdRoutine);
+		router.get("/:id").handler(this::getDemandExerciseRoutine);		
 		router.route().handler(this::readingDirectoryRoutine);
 		router.post().handler(this::postRoutine);
 	}
@@ -80,11 +83,26 @@ public class LightServer extends AbstractVerticle {
 		routingContext.response().end();
 	}
 
-	private void helloIdRoutine(RoutingContext routingContext) {
-		String myId = routingContext.request().getParam("id");
-		routingContext.response().end("<h1>Hello from : " + myId + "</h1>");
-	}
+	public void getDemandExerciseRoutine(RoutingContext context) {
+		String id = context.request().getParam("id");
+		Path path = Paths.get(this.workingDirectory.toString(),id+".mkdown");
+		HttpServerResponse rep = context.response().setChunked(true).putHeader("content-type", "text/html");
 
+		if(Files.exists(path)){
+			MarkdownToHTML markdownToHTML = new MarkdownToHTML();
+			try {
+				rep.write(markdownToHTML.parse(path));
+			} catch (IOException e) {
+				rep.write("Unable to load "+id+".mkdow");
+			}
+		}
+		else{
+			rep.write("Excercice with id "+id+" no found");
+		}
+		rep.end();
+	}
+	
+	
 	private void listLinksRoutine(RoutingContext routingContext) {
 		routingContext.response().setChunked(true);
 		FileSystem fs = routingContext.vertx().fileSystem();
