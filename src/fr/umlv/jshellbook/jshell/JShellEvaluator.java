@@ -90,6 +90,7 @@ public class JShellEvaluator implements Closeable {
 			sb.append(".");
 		}
 
+		/*Faux positif car on traite pas comme un String normal il s'agit ici d'une expre idem que C*/
 		this.printStream.println(String.format("Attempted to call %s which cannot be invoked until%s", corralled.name(),
 				unresolved(corralled), sb.toString()));
 
@@ -109,6 +110,7 @@ public class JShellEvaluator implements Closeable {
 		for (int fromLast = unr.size(); fromLast > 0; fromLast--) {
 			String u = unr.get(fromLast);
 			sb.append(u);
+			/*Faux positif fromLast peut valoir 0 il faut donc tester*/
 			if (fromLast == 0) {
 				// No suffix
 			} else if (fromLast == 1) {
