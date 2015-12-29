@@ -56,7 +56,7 @@ public class LightServer extends AbstractVerticle {
 	private static Handler<AsyncResult<HttpServer>> futureTreatment(Future<Void> fut) {
 		return result -> {
 			if (result.succeeded()) {
-				System.out.println("You can work on : http://localhost:8989");
+				System.out.println("You can work on : http://localhost:8989/");
 				fut.complete();
 			} else {
 				fut.fail(result.cause());
@@ -66,7 +66,7 @@ public class LightServer extends AbstractVerticle {
 
 	private static JsonObject makeExoJson(String line) {
 		JsonObject jsonObject = new JsonObject();
-		List<String> lineSplit = Arrays.asList(line.split(File.separator));
+		List<String> lineSplit = Arrays.asList(line.split("/|\\\\"));
 		jsonObject.put("full", line);
 		String id = lineSplit.get(lineSplit.size() - 1);
 		id = id.substring(0, id.indexOf('.'));
