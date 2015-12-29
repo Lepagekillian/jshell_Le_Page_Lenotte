@@ -14,7 +14,6 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -40,16 +39,15 @@ public class LightServer extends AbstractVerticle {
 
 		FileSystem fs = routingContext.vertx().fileSystem();
 		routingContext.response().setChunked(true);
-		routingContext.response().putHeader("content-type", "text/html").sendFile("index.html");
-		
-		List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
+		routingContext.response().sendFile("webroot/index.html");
+	List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
 
 		List<JsonObject> jsonObjects = new ArrayList<>();
 		for (String line : toTreat) {
 			jsonObjects.add(LightServer.makeExoJson(line));
 		}
-		routingContext.response().write(Json.encode(jsonObjects));
-		routingContext.response().end();
+		//routingContext.response().write(Json.encode(jsonObjects));
+		//routingContext.response().end();
 	}
 
 	private static Handler<AsyncResult<HttpServer>> futureTreatment(Future<Void> fut) {

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<script src="asset/angular.min.js"></script>
+<body>
+
+<div ng-app="myApp" ng-controller="customersCtrl"> 
+
+
+  <li ng-repeat="x in names">
+    <a href={{x.Name}}>
+    {{ x.Name + ', ' + x.Country }}
+    </a>
+  </li>
+
+
+</div>
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('customersCtrl', function($scope, $http) {
+  $http.get("http://www.w3schools.com/angular/customers.php")
+  .then(function (response) {$scope.names = response.data.records;});
+});
+</script>
+
+</body>
+</html>
