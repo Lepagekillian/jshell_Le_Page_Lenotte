@@ -28,7 +28,8 @@ public class JShellEvaluator implements Closeable {
 	private final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
 	/**
-	 * @author Le Page Lenotte A JShellEvaluator is an object that allows user
+	 * @author Le Page Lenotte 
+	 * A JShellEvaluator is an object that allows user
 	 *         to manage the Evaluation of a JShell command
 	 */
 	public JShellEvaluator() {
@@ -146,7 +147,8 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/**
-	 * Make a evaluation of the code and try to execute it
+	 * Makes an evaluation of the code and try to execute it
+	 * 
 	 * @author Le Page Lenotte
 	 * @param snippetsToEvalthe
 	 *            snippets to eval
@@ -157,18 +159,20 @@ public class JShellEvaluator implements Closeable {
 	 */
 	public String evalSnippets(List<String> snippetsToEval) {
 		Objects.requireNonNull(snippetsToEval);
-
 		for (String snippet : snippetsToEval) {
 			if (!evalOneSnippet(Objects.requireNonNull(snippet))) {
-				break;// If a snippet is wrong or throw an exception no need to
-						// continue
+				break;//If a snippet is wrong or throw an exception no need to continue
 			}
 		}
 		String resEval = this.arrayOutputStream.toString();
 		this.arrayOutputStream.reset();
 		return resEval;
 	}
-
+	
+	/*We got more than 8 lines because we don't wanted
+	 *to externalize 2 loops and maintains the control
+	 *during the exploring of our Diags list  
+	 * */
 	void printDiagnostics(String source, List<Diag> diagnostics) {
 		for (Diag diag : diagnostics) {
 
@@ -188,6 +192,7 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/**
+	 * @author Lenotte
 	 * Close the evaluator
 	 */
 	@Override

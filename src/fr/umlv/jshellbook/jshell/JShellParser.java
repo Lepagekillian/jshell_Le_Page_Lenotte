@@ -17,6 +17,7 @@ public class JShellParser {
 	private final static List<String> blocList = Arrays.asList("if", "for", "while", "else", "else if", "class");
 	private final static Pattern pattern = Pattern.compile(blocList.stream().collect(Collectors.joining("\\s*\\(|")));
 	/**
+	 * @author Le Page Lenotte
 	 * Create a list of string code from a string
 	 * @param lines A String which contains the code to parse
 	 * @return A list with the snippets ready to be evaluate with <code>JShellEvaluator</code>
