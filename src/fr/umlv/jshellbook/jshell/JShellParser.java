@@ -80,7 +80,6 @@ public class JShellParser {
 	}
 
 	private static boolean isToMuchSplit(String line) {
-/*Impossible de faire un test d'impaaire avec un nombre négatif  ==> Possible d'avoir nb néga ?*/
 		return countNbSymbole(line, '"') % 2 == 1 || countNbSymbole(line, '\'') % 2 == 1;
 	}
 

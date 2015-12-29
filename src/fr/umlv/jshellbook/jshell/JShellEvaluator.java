@@ -27,6 +27,10 @@ public class JShellEvaluator implements Closeable {
 	private final PrintStream printStream;
 	private final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
+	/**
+	 * @author Le Page Lenotte A JShellEvaluator is an object that allows user
+	 *         to manage the Evaluation of a JShell command
+	 */
 	public JShellEvaluator() {
 		this.printStream = new PrintStream(this.arrayOutputStream);
 		this.builder = JShell.builder();
@@ -35,12 +39,17 @@ public class JShellEvaluator implements Closeable {
 		this.jShell = this.builder.build();
 	}
 
+	/*
+	 * This code is more than 8 lines length because we don't want to
+	 * externalize our Snippet and takes the risk that the Snippet could be
+	 * modify by an other method
+	 */
 	private boolean evalOneSnippet(final String snippetToEval) {
 		List<SnippetEvent> events = this.jShell.eval(snippetToEval);
 		for (SnippetEvent snippetEvent : events) {
 			Snippet snippet = snippetEvent.snippet();
 			if (snippetEvent.exception() != null) {
-				printException(snippetEvent.exception(),snippet.source());
+				printException(snippetEvent.exception(), snippet.source());
 				return false;
 			}
 			if (snippetEvent.status() == Status.REJECTED) {
@@ -52,7 +61,7 @@ public class JShellEvaluator implements Closeable {
 		return true;
 	}
 
-	private void printException(Exception exception,String source) {
+	private void printException(Exception exception, String source) {
 		this.printStream.println(source);
 		if (exception instanceof EvalException) {
 			printEvalException((EvalException) exception);
@@ -64,18 +73,26 @@ public class JShellEvaluator implements Closeable {
 
 	private void printEvalException(EvalException evalException) {
 		if (evalException.getMessage() == null) {
-			this.printStream.println(String.format("%s thrown", evalException.getExceptionClassName()));
+			this.printStream.println(String.format("%s thrown",
+					evalException.getExceptionClassName()));
 		} else {
-			this.printStream.println(String.format("%s thrown: %s", evalException.getExceptionClassName(), evalException.getMessage()));
+			this.printStream.println(String.format("%s thrown: %s",
+					evalException.getExceptionClassName(),
+					evalException.getMessage()));
 		}
-
 		evalException.printStackTrace(this.printStream);
 	}
 
-	private void printUnresolvedReferenceException(UnresolvedReferenceException ex) {
+	/*
+	 * This code is more than 8 lines length because we wouldn't wanted to
+	 * separates too much the code and takes the risk to loose a potential
+	 * element during the evaluation
+	 */
+	private void printUnresolvedReferenceException(
+			UnresolvedReferenceException ex) {
 		MethodSnippet corralled = ex.getMethodSnippet();
-		List<Diag> otherErrors = this.jShell.diagnostics(corralled).stream().filter(d -> d.isError())
-				.collect(Collectors.toList());
+		List<Diag> otherErrors = this.jShell.diagnostics(corralled).stream()
+				.filter(d -> d.isError()).collect(Collectors.toList());
 		StringBuilder sb = new StringBuilder();
 		if (otherErrors.size() > 0) {
 			if (this.jShell.unresolvedDependencies(corralled).size() > 0) {
@@ -90,15 +107,20 @@ public class JShellEvaluator implements Closeable {
 			sb.append(".");
 		}
 
-		/*Faux positif car on traite pas comme un String normal il s'agit ici d'une expre idem que C*/
-		this.printStream.println(String.format("Attempted to call %s which cannot be invoked until%s", corralled.name(),
-				unresolved(corralled), sb.toString()));
+		this.printStream.println(String.format(
+				"Attempted to call %s which cannot be invoked until%s",
+				corralled.name(), unresolved(corralled), sb.toString()));
 
 		if (otherErrors.size() > 0) {
 			printDiagnostics(corralled.source(), otherErrors);
 		}
 	}
 
+	/*
+	 * This code is more than 8 lines length because we wouldn't wanted to
+	 * separates too much the code and takes the risk to loose a potential
+	 * element during the evalution of an error
+	 */
 	private String unresolved(DeclarationSnippet key) {
 		List<String> unr = this.jShell.unresolvedDependencies(key);
 		if (unr.isEmpty()) {
@@ -110,7 +132,6 @@ public class JShellEvaluator implements Closeable {
 		for (int fromLast = unr.size(); fromLast > 0; fromLast--) {
 			String u = unr.get(fromLast);
 			sb.append(u);
-			/*Faux positif fromLast peut valoir 0 il faut donc tester*/
 			if (fromLast == 0) {
 				// No suffix
 			} else if (fromLast == 1) {
@@ -126,9 +147,10 @@ public class JShellEvaluator implements Closeable {
 
 	/**
 	 * Make a evaluation of the code and try to execute it
-	 * 
-	 * @param snippetsToEvalthe snippets to eval 
-	 * @return The resultat of the execution 
+	 * @author Le Page Lenotte
+	 * @param snippetsToEvalthe
+	 *            snippets to eval
+	 * @return The resultat of the execution
 	 * @throws Null
 	 *             pointer exception if the list is null or one line of code is
 	 *             null.
@@ -164,6 +186,7 @@ public class JShellEvaluator implements Closeable {
 			this.printStream.println(source);
 		}
 	}
+
 	/**
 	 * Close the evaluator
 	 */
