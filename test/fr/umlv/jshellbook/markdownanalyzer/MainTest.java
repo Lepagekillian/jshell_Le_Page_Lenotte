@@ -3,8 +3,6 @@ package fr.umlv.jshellbook.markdownanalyzer;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.pegdown.PegDownProcessor;
-
 import fr.umlv.jshellbook.markdownanalyzer.MarkdownToHTML;
 
 public class MainTest {
