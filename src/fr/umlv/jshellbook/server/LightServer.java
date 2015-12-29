@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import fr.umlv.jshellbook.jshell.JShellEvaluator;
+import fr.umlv.jshellbook.jshell.JShellParser;
 import fr.umlv.jshellbook.markdownanalyzer.MarkdownToHTML;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -76,9 +78,17 @@ public class LightServer extends AbstractVerticle {
 	}
 
 	/* Routine's method to use with our Server */
-
 	private void postRoutine(RoutingContext routingContext) {
-		System.out.println("HELLO post/submit method :)");
+		String body = routingContext.getBodyAsString();
+		
+		String res ;
+		try(JShellEvaluator evaluator = new JShellEvaluator()){
+			 res = evaluator.evalSnippets(JShellParser.parseToSnippets(body));
+		} catch (IOException e) {
+			res = "Unable to evaluation the code";
+		}
+		routingContext.response().setChunked(true).putHeader("content-type", "text/html");
+		routingContext.response().write(res);
 		routingContext.response().end();
 	}
 
@@ -90,33 +100,7 @@ public class LightServer extends AbstractVerticle {
 		if(Files.exists(path)){
 			MarkdownToHTML markdownToHTML = new MarkdownToHTML();
 			try {
-				String[] split = markdownToHTML.parse(path).split("\n");
-				StringBuilder res = new StringBuilder();
-				int formCounter = 0;
-				for (int i = 1; i < split.length; i++) {
-					if((i==split.length-1) || 
-						((split[i+1].contains("<h2>") && (!split[i-1].contains("<h1>"))
-							))){
-						res.append(split[i]+"\n");
-						res.append("<form id=\"questForm");
-						res.append(formCounter);
-						res.append("\"><textarea class = \"myAnswer\" ");
-						res.append("rows=\"30\" cols =\"40\" name=\"questForm\" ");
-						res.append("value = \"Type here your Java Code\"> ");
-						res.append("Type here </textarea>\n");
-						res.append("<p id =\"resOfEval\"");
-						res.append(formCounter);
-						res.append("></p>\n<br>\n");
-						res.append("<input type =\"submit\" value = \"EvalCode!\"/>");
-						res.append("</form>\n");
-						formCounter+=1;
-						}
-					else{
-						res.append(split[i]);
-						res.append("\n");
-					}
-				}
-				rep.write(res.toString());
+				rep.write(markdownToHTML.parse(path));
 			} catch (IOException e) {
 				rep.write("Unable to load "+id+".mkdow");
 			}
