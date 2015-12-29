@@ -1,10 +1,10 @@
 package fr.umlv.jshellbook.server;
 
-import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -42,7 +42,7 @@ public class LightServer extends AbstractVerticle {
 		routingContext.response().setChunked(true);
 		routingContext.response().putHeader("content-type", "text/html");
 		List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
-		
+
 		List<JsonObject> jsonObjects = new ArrayList<>();
 		for (String line : toTreat) {
 			jsonObjects.add(LightServer.makeExoJson(line));
@@ -65,10 +65,12 @@ public class LightServer extends AbstractVerticle {
 	private static JsonObject makeExoJson(String line) {
 		JsonObject jsonObject = new JsonObject();
 		Path path = Paths.get(line);
-		jsonObject.put("full", line);
-		String id =path.getFileName().toString();
-		id = id.substring(0, id.indexOf('.'));
-		jsonObject.put("id", id);
+		if (Files.exists(path)) {
+			jsonObject.put("full", line);
+			String id = path.getFileName().toString();
+			id = id.substring(0, id.indexOf('.'));
+			jsonObject.put("id", id);
+		}
 
 		return jsonObject;
 	}
