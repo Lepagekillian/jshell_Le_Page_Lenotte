@@ -2,6 +2,7 @@ package fr.umlv.jshellbook.server;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,9 +64,9 @@ public class LightServer extends AbstractVerticle {
 
 	private static JsonObject makeExoJson(String line) {
 		JsonObject jsonObject = new JsonObject();
-		List<String> lineSplit = Arrays.asList(line.split("/|\\\\"));
+		Path path = Paths.get(line);
 		jsonObject.put("full", line);
-		String id = lineSplit.get(lineSplit.size() - 1);
+		String id =path.getFileName().toString();
 		id = id.substring(0, id.indexOf('.'));
 		jsonObject.put("id", id);
 
