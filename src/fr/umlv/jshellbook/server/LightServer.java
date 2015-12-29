@@ -40,7 +40,8 @@ public class LightServer extends AbstractVerticle {
 
 		FileSystem fs = routingContext.vertx().fileSystem();
 		routingContext.response().setChunked(true);
-		routingContext.response().putHeader("content-type", "text/html");
+		routingContext.response().putHeader("content-type", "text/html").sendFile("index.html");
+		
 		List<String> toTreat = fs.readDirBlocking(this.workingDirectory.toString(), "[^.]*.mkdown");
 
 		List<JsonObject> jsonObjects = new ArrayList<>();
