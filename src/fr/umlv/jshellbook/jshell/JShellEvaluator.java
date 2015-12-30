@@ -154,10 +154,11 @@ public class JShellEvaluator implements Closeable {
 	 * @param snippetsToEval
 	 *            the snippets to eval
 	 * @return The resultat of the execution
+	 * @throws UnsupportedEncodingException if the charset is unspported
 	 * @throws NullPointerException
 	 *             if the list is null or one line of code is null.
 	 */
-	public String evalSnippets(List<String> snippetsToEval) {
+	public String evalSnippets(List<String> snippetsToEval) throws UnsupportedEncodingException {
 		Objects.requireNonNull(snippetsToEval);
 		for (String snippet : snippetsToEval) {
 			if (!evalOneSnippet(Objects.requireNonNull(snippet))) {
@@ -165,7 +166,8 @@ public class JShellEvaluator implements Closeable {
 						// continue
 			}
 		}
-		String resEval = this.arrayOutputStream.toString();
+		
+		String resEval = this.arrayOutputStream.toString(Charset.defaultCharset().name());
 		this.arrayOutputStream.reset();
 		return resEval;
 	}
@@ -174,7 +176,7 @@ public class JShellEvaluator implements Closeable {
 	 * We got more than 8 lines because we don't wanted to externalize 2 loops
 	 * and maintains the control during the exploring of our Diags list
 	 */
-	void printDiagnostics(String source, List<Diag> diagnostics) {
+	private void printDiagnostics(String source, List<Diag> diagnostics) {
 		for (Diag diag : diagnostics) {
 
 			if (diag.isError()) {
