@@ -28,9 +28,10 @@ public class JShellEvaluator implements Closeable {
 	private final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
 	/**
-	 * A JShellEvaluator is an object that allows user
-	 *         to manage the Evaluation of a JShell command
-	 * @author Le Page Lenotte 
+	 * A JShellEvaluator is an object that allows user to manage the Evaluation
+	 * of a JShell command
+	 * 
+	 * @author Le Page Lenotte
 	 * 
 	 */
 	public JShellEvaluator() {
@@ -75,26 +76,23 @@ public class JShellEvaluator implements Closeable {
 
 	private void printEvalException(EvalException evalException) {
 		if (evalException.getMessage() == null) {
-			this.printStream.println(String.format("%s thrown",
-					evalException.getExceptionClassName()));
+			this.printStream.println(String.format("%s thrown", evalException.getExceptionClassName()));
 		} else {
-			this.printStream.println(String.format("%s thrown: %s",
-					evalException.getExceptionClassName(),
-					evalException.getMessage()));
+			this.printStream.println(
+					String.format("%s thrown: %s", evalException.getExceptionClassName(), evalException.getMessage()));
 		}
 		evalException.printStackTrace(this.printStream);
 	}
 
 	/*
-	 * This code is more than 8 lines length because we wouldn't wanted to
-	 * separates too much the code and takes the risk to loose a potential
-	 * element during the evaluation
+	 * This code is more than 8 lines length becausebecause we wanted to treats,
+	 * in the same method, that we got 1 or manys errors to diplay it/them to
+	 * the use
 	 */
-	private void printUnresolvedReferenceException(
-			UnresolvedReferenceException ex) {
+	private void printUnresolvedReferenceException(UnresolvedReferenceException ex) {
 		MethodSnippet corralled = ex.getMethodSnippet();
-		List<Diag> otherErrors = this.jShell.diagnostics(corralled).stream()
-				.filter(d -> d.isError()).collect(Collectors.toList());
+		List<Diag> otherErrors = this.jShell.diagnostics(corralled).stream().filter(d -> d.isError())
+				.collect(Collectors.toList());
 		StringBuilder sb = new StringBuilder();
 		if (otherErrors.size() > 0) {
 			if (this.jShell.unresolvedDependencies(corralled).size() > 0) {
@@ -109,9 +107,8 @@ public class JShellEvaluator implements Closeable {
 			sb.append(".");
 		}
 
-		this.printStream.println(String.format(
-				"Attempted to call %s which cannot be invoked until%s",
-				corralled.name(), unresolved(corralled), sb.toString()));
+		this.printStream.println(String.format("Attempted to call %s which cannot be invoked until%s", corralled.name(),
+				unresolved(corralled), sb.toString()));
 
 		if (otherErrors.size() > 0) {
 			printDiagnostics(corralled.source(), otherErrors);
@@ -119,9 +116,9 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/*
-	 * This code is more than 8 lines length because we wouldn't wanted to
-	 * separates too much the code and takes the risk to loose a potential
-	 * element during the evalution of an error
+	 * This code is more than 8 lines length because we wanted to
+	 * treats, in the same method, that we got 1 or manys errors to diplay
+	 * it/them to the use
 	 */
 	private String unresolved(DeclarationSnippet key) {
 		List<String> unr = this.jShell.unresolvedDependencies(key);
@@ -151,27 +148,29 @@ public class JShellEvaluator implements Closeable {
 	 * Makes an evaluation of the code and try to execute it
 	 * 
 	 * @author Le Page Lenotte
-	 * @param snippetsToEval  the snippets to eval
+	 * @param snippetsToEval
+	 *            the snippets to eval
 	 * @return The resultat of the execution
-	 * @throws NullPointerException if the list is null or 
-	 * 								one line of code is null.
+	 * @throws NullPointerException
+	 *             if the list is null or one line of code is null.
 	 */
 	public String evalSnippets(List<String> snippetsToEval) {
 		Objects.requireNonNull(snippetsToEval);
 		for (String snippet : snippetsToEval) {
 			if (!evalOneSnippet(Objects.requireNonNull(snippet))) {
-				break;//If a snippet is wrong or throw an exception no need to continue
+				break;// If a snippet is wrong or throw an exception no need to
+						// continue
 			}
 		}
 		String resEval = this.arrayOutputStream.toString();
 		this.arrayOutputStream.reset();
 		return resEval;
 	}
-	
-	/*We got more than 8 lines because we don't wanted
-	 *to externalize 2 loops and maintains the control
-	 *during the exploring of our Diags list  
-	 * */
+
+	/*
+	 * We got more than 8 lines because we don't wanted to externalize 2 loops
+	 * and maintains the control during the exploring of our Diags list
+	 */
 	void printDiagnostics(String source, List<Diag> diagnostics) {
 		for (Diag diag : diagnostics) {
 
@@ -191,8 +190,7 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/**
-	 * @author Lenotte
-	 * Close the evaluator
+	 * @author Lenotte Close the evaluator
 	 */
 	@Override
 	public void close() throws IOException {
