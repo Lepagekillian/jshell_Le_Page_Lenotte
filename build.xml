@@ -2,87 +2,96 @@
 <project name="jshell_Le_Page_Lenotte" default="clean" basedir=".">
 
 
-    <target name="clean" description="clean .class of the project ">
+	<target name="clean" description="clean .class of the project ">
 		<delete includeemptydirs="true">
 			<fileset dir="classes">
-				<include name="*/**"/>
+				<include name="*/**" />
 			</fileset>
 		</delete>
-    </target>
-	
-	
-
-    <target name="compile" depends="clean" description="compiles the source code of the project">
-        <javac 
-        	includeantruntime="false"
-        	srcdir="src"
-        	destdir="classes">
-    		<classpath>
-    		<fileset dir="libs">
-    			<include name="*.jar"/>
-    			<include name="vert.x-3.0.0/*.jar" />
-    		</fileset>
-    		</classpath>
-        </javac>
-    </target>
-
-
-
-	
-	
-	<target name="javadoc" depends="compile" description="makes the javadoc of the project">
-	<javadoc sourcepath="src" 
-		destdir="docs/api/" 
-		verbose="true" 
-		author="true">
-		<classpath>
-		<fileset dir="libs">
-			<include name="*.jar"/>
-			<include name="vert.x-3.0.0/*.jar" />
-		</fileset>
-		</classpath>
-	</javadoc>
-	
 	</target>
-	
-	
-	
-	
+
+	<target name="cleanAll" depends="clean" description="clean .class of the project plus the executable.jar ">
+		<delete>
+			<fileset dir=".">
+				<include name="jshellbook.jar" />
+			</fileset>
+		</delete>
+	</target>
+
+
+
+	<target name="compile" depends="clean" description="compiles the source code of the project">
+		<javac includeantruntime="false" srcdir="src" destdir="classes">
+			<classpath>
+				<fileset dir="libs">
+					<include name="*.jar" />
+					<include name="vert.x-3.0.0/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+
+
+
+
+	<target name="javadoc" depends="compile" description="makes the javadoc of the project">
+		<javadoc sourcepath="src" destdir="docs/api/" verbose="true" author="true">
+			<classpath>
+				<fileset dir="libs">
+					<include name="*.jar" />
+					<include name="vert.x-3.0.0/*.jar" />
+				</fileset>
+			</classpath>
+		</javadoc>
+
+	</target>
+
+
+
+
 	<!--
 		This method is to be used if you want to clean the Javadoc generates
 		for the project befre a potential rebuild of him. It's not necessary to
 		use them.
 	-->
-    <target name="cleanJavadoc" description="clean javadoc generates for the project ">
+	<target name="cleanJavadoc" description="clean javadoc generates for the project ">
 		<delete includeemptydirs="true">
 			<fileset dir="docs/api">
-				<include name="*/**"/>
+				<include name="*/**" />
 			</fileset>
 		</delete>
-    </target>
+	</target>
 
 	
+	<!--
+		Ths method could be use to clean javadoc and the .class if you want
+		to clean the directory
+	-->
+	<target name="cleanJavadocAndClasses" depends="clean,cleanJavadoc">
+		<echo>Javadoc and .class have been suppressed</echo>
+	</target>
+
+
 	<target name="jar">
 		<jar destfile="./jshellbook.jar">
-			<fileset dir="./classes"/>
-		    <restrict>
-		     <name name="**/*.class"/>
-		     <archives>
-		       <zips>
-				<fileset dir="libs">
-					<include name="*.jar"/>
-					<include name="vert.x-3.0.0/*.jar" />
-				</fileset>
-		        <!-- <fileset dir="libs" includes="*.jar"/>
-		         <fileset dir="./libs/vert.x-3.0.0" includes="*.jar"/> -->		       	 
-		       </zips>
-		     </archives>
-		    </restrict>
+			<fileset dir="classes" />
+			<restrict>
+				<name name="*/**" />
+				<archives>
+					<zips>
+						<fileset dir="libs">
+							<include name="*.jar" />
+							<include name="vert.x-3.0.0/*.jar" />
+						</fileset>
+					</zips>
+				</archives>
+			</restrict>
 			<manifest>
-				<attribute name="Main-class" value="fr.umlv.jshellbook.jshellapplication.JShellBookApplication"/>
+				<attribute name="Main-class" value="fr.umlv.jshellbook.jshellapplication.JShellBookApplication" />
 			</manifest>
 		</jar>
-	
+
 	</target>
 
 

@@ -85,7 +85,7 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/*
-	 * This code is more than 8 lines length becausebecause we wanted to treats,
+	 * This code is more than 8 lines length because we wanted to treats,
 	 * in the same method, that we got 1 or manys errors to diplay it/them to
 	 * the use
 	 */
