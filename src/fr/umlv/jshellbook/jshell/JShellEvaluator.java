@@ -111,7 +111,7 @@ public class JShellEvaluator implements Closeable {
 			sb.append(".");
 		}
 
-		this.printStream.println(String.format("Attempted to call %s which cannot be invoked until%s", corralled.name(),
+		this.printStream.println(String.format("Attempted to call %s which cannot be invoked until%s %s", corralled.name(),
 				unresolved(corralled), sb.toString()));
 
 		if (otherErrors.size() > 0) {
