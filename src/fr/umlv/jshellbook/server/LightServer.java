@@ -68,7 +68,7 @@ public class LightServer extends AbstractVerticle {
 	private static JsonObject makeExoJson(String line) {
 		JsonObject jsonObject = new JsonObject();
 		Path path = Paths.get(line);
-		if (Files.exists(path)) {
+		if (path != null && Files.exists(path)) {
 			jsonObject.put("full", line);
 			String id = path.getFileName().toString();
 			id = id.substring(0, id.indexOf('.'));
