@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
-<script src="asset/angular.min.js"></script>
+<script src="asset/jquery-2.1.4.js"></script>
 <body>
 
-<div ng-app="myApp" ng-controller="customersCtrl"> 
-
-
-  <li ng-repeat="x in names">
-    <a href={{x.Name}}>
-    {{ x.Name + ', ' + x.Country }}
-    </a>
-  </li>
-
+<div > 
 
 </div>
 
 <script>
-var app = angular.module('myApp', []);
-app.controller('customersCtrl', function($scope, $http) {
-  $http.get("http://www.w3schools.com/angular/customers.php")
-  .then(function (response) {$scope.names = response.data.records;});
-});
-</script>
+$.get(exerciceRequest,function(list) {
 
+   console.log(list);
+
+   var jsonData = JSON.parse(list);
+   thelength =  jsonData.questions.length;
+   var actualeDateVersion = jsonData.dateVersion ;
+   console.log('version:'+actualeDateVersion);
+   element.append(jsonData.introducing);
+   for (var i = 0; i < jsonData.questions.length ; i++) {
+    var counter = jsonData.questions[i];
+
+    element.append(counter.question);
+    element.append('<form id="myForm'+i+'"><textarea class=answer rows=20 cols=50 name="bidule" value="Entrez un texte">Your answser !</textarea><p id ="myAnswerEvaluated'+i+'"></p><br />  <br /><input type="submit" value="Submit !" /></form>');
+   }
+</script>
+<!-- <textarea cols="80" name="questioni">
+</textarea> -->
 </body>
 </html>

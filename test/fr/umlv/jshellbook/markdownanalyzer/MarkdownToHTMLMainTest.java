@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 
 import fr.umlv.jshellbook.markdownanalyzer.MarkdownToHTML;
 
-public class MainTest {
+public class MarkdownToHTMLMainTest {
 	
 	public static void main(String[] args) {
 		MarkdownToHTML work =  new MarkdownToHTML();

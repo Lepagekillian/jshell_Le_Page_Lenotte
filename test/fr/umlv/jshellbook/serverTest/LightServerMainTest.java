@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import io.vertx.core.Vertx;
 import fr.umlv.jshellbook.server.LightServer;
 
-public class LightMain {
+public class LightServerMainTest {
 
 	public static void main(String[] args) {
 		Vertx vertx = Vertx.vertx();
