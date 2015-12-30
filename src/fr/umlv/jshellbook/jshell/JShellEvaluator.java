@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import java.util.Objects;
@@ -32,10 +34,13 @@ public class JShellEvaluator implements Closeable {
 	 * of a JShell command
 	 * 
 	 * @author Le Page Lenotte
+	 * @throws UnsupportedEncodingException if the charset is not supported
+	 * 
 	 * 
 	 */
-	public JShellEvaluator() {
-		this.printStream = new PrintStream(this.arrayOutputStream);
+	public JShellEvaluator() throws UnsupportedEncodingException {
+
+		this.printStream = new PrintStream(this.arrayOutputStream, false, Charset.defaultCharset().name());
 		this.builder = JShell.builder();
 		this.builder.err(this.printStream);
 		this.builder.out(this.printStream);
@@ -85,9 +90,8 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/*
-	 * This code is more than 8 lines length because we wanted to treats,
-	 * in the same method, that we got 1 or manys errors to diplay it/them to
-	 * the use
+	 * This code is more than 8 lines length because we wanted to treats, in the
+	 * same method, that we got 1 or manys errors to diplay it/them to the use
 	 */
 	private void printUnresolvedReferenceException(UnresolvedReferenceException ex) {
 		MethodSnippet corralled = ex.getMethodSnippet();
@@ -116,9 +120,8 @@ public class JShellEvaluator implements Closeable {
 	}
 
 	/*
-	 * This code is more than 8 lines length because we wanted to
-	 * treats, in the same method, that we got 1 or manys errors to diplay
-	 * it/them to the use
+	 * This code is more than 8 lines length because we wanted to treats, in the
+	 * same method, that we got 1 or manys errors to diplay it/them to the use
 	 */
 	private String unresolved(DeclarationSnippet key) {
 		List<String> unr = this.jShell.unresolvedDependencies(key);
